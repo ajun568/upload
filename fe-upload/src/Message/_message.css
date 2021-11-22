@@ -1,0 +1,24 @@
+.message {
+  width: 280px;
+  padding: 10px;
+  text-align: center;
+  color: #fff;
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  z-index: 101;
+  margin-left: -150px;
+  box-shadow: 1px 1px 5px #333;
+}
+.info {
+  background-color: #35b3ff;
+}
+.success {
+  background-color: #5cb85c;
+}
+.warning {
+  background-color: #ff8e05;
+}
+.error {
+  background-color: #d84c31;
+}
