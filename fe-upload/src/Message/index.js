@@ -1,29 +1,38 @@
 import './_message.css'
-import MessageRender from './render'
+import MessageContainer from './MessageContainer'
 import ReactDOM from 'react-dom'
 
-const renderMessage = (type, info) => {
-  console.log(type, info)
-  let el = document.querySelector('#message')
-  if (!el) {
-    // 这里出了问题, 处理错误了
-    document.body.append(<MessageRender type={type} info={info} />)
-  }
+let seed = 0
 
+let el = document.querySelector('#message-wrapper')
+if (!el) {
+  el = document.createElement('div')
+  el.id = 'message-wrapper'
+  document.body.append(el)
+}
+
+const addMessage = (type, info) => {
+  seed += 1
+  let messageInfo = {
+    type,
+    info,
+    uuid: `Message_${seed}`,
+  }
+  ReactDOM.render(<MessageContainer messageInfo={messageInfo} />, el)
 }
 
 const message = {
   info: (info) => {
-    return renderMessage('info', info)
+    addMessage('info', info)
   },
   success: (info) => {
-    return renderMessage('success', info)
+    addMessage('success', info)
   },
   warning: (info) => {
-    return renderMessage('warning', info)
+    addMessage('warning', info)
   },
   error: (info) => {
-    return renderMessage('error', info)
+    addMessage('error', info)
   },
 }
 

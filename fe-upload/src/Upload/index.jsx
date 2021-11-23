@@ -41,7 +41,7 @@ const Upload = (props) => {
 
   // 打开 upload 弹窗
   const openFile = () => {
-    message.info('我是info的测试信息')
+    message.success('我是info的测试信息')
     // if (fileRef?.current) fileRef.current.click()
   }
 
