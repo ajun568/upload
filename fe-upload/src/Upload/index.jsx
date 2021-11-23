@@ -14,8 +14,10 @@ const Upload = (props) => {
     multiple, // 是否支持多文件上传
     name, // 发送到后台的文件参数名
     onDrop, // 当文件被拖入上传区域时执行的回调功能
+    finishUpload, // 文件上传后, 返回接口数据
   } = props
 
+  const [fileValue, setFileValue] = useState('') // 清空input值, 上传同名文件
   const fileRef = useRef(null)
 
   // 禁用页面默认拖拽事件
@@ -41,13 +43,18 @@ const Upload = (props) => {
 
   // 打开 upload 弹窗
   const openFile = () => {
-    message.success('我是info的测试信息')
-    // if (fileRef?.current) fileRef.current.click()
+    if (fileRef?.current) fileRef.current.click()
   }
 
   // 上传逻辑
   const upload = async (e) => {
-    const files = e.target.files
+    setFileValue('')
+    let files = [...e.target.files]
+
+    if (beforeUpload) {
+      let beforeUploadData = beforeUpload()
+      if (beforeUploadData === false) return
+    }
 
     const formData = new FormData()
     files.forEach(item => {
@@ -60,20 +67,32 @@ const Upload = (props) => {
       },
     }
 
-
     const data = await axios.post(action, formData, config)
+
+    if (finishUpload) {
+      finishUpload(data)
+      return
+    }
+
+    // 按 be-upload 接口格式处理数据
+    if (data.data.err_no !== 0) {
+      message.error('上传失败')
+      return
+    }
+    message.success('上传成功')
   }
 
   return (
     <section>
       <input
         ref={fileRef}
+        value={fileValue}
         style={{display: 'none'}}
         type="file"
         name="file"
         accept={accept}
         onChange={upload}
-        multiple
+        multiple={multiple}
       />
       {
         type === 'primary' && (

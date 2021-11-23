@@ -306,7 +306,9 @@ const App = () => {
       <button onClick={cancel}>取 消</button>
       <div className={`${isDrag ? 'dragging' : ''} drop-area`} ref={dropRef}>这里是拖拽区域</div> */}
 
-      <Upload />
+      <Upload
+        action="http://localhost:3000/api/uploads/multiple"
+      />
     </div>
   );
 }
