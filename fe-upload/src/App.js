@@ -300,7 +300,7 @@ const App = () => {
   }
 
   return (
-    <div className="App" style={{marginTop: 20}}>
+    <div className="App" style={{marginTop: 20, marginLeft: 20}}>
       {/* { renderFormData() }
       <div ref={progressRef} className="progress"></div>
       <button onClick={cancel}>取 消</button>

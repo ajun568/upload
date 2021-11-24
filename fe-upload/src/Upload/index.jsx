@@ -19,6 +19,8 @@ const Upload = (props) => {
 
   const [fileValue, setFileValue] = useState('') // 清空input值, 上传同名文件
   const fileRef = useRef(null)
+  const progressRef = useRef(null)
+  const progressFontRef = useRef(null)
 
   // 禁用页面默认拖拽事件
   useEffect(() => {
@@ -50,6 +52,9 @@ const Upload = (props) => {
   const upload = async (e) => {
     setFileValue('')
     let files = [...e.target.files]
+    progressRef.current.style.width = '0'
+    progressRef.current.classList.remove('green')
+    progressFontRef.current.innerHTML = '0%'
 
     if (beforeUpload) {
       let beforeUploadData = beforeUpload()
@@ -64,6 +69,18 @@ const Upload = (props) => {
     let config = {
       headers: {
         'Content-Type': 'multipart/form-data'
+      },
+      onUploadProgress: e => {
+        const { loaded, total } = e
+        if (e.lengthComputable) {
+          let progress = loaded / total
+          let progressNum = (progress * 100).toFixed(0)
+          progressRef.current.style.width = `${120 * progress}px`
+          progressFontRef.current.innerHTML = `${progressNum}%`
+          if (progressNum > 90) {
+            progressRef.current.classList.add('green')
+          }
+        }
       },
     }
 
@@ -94,16 +111,24 @@ const Upload = (props) => {
         onChange={upload}
         multiple={multiple}
       />
-      {
-        type === 'primary' && (
-          <button
-            className={`btn ${disabled ? 'btn-disabled' : ''}`}
-            onClick={openFile}
-          >
-            上传
-          </button>
-        )
-      }
+      <div className="btn-container">
+        {
+          type === 'primary' && (
+            <button
+              className={`btn ${disabled ? 'btn-disabled' : ''}`}
+              onClick={openFile}
+            >
+              上传
+            </button>
+          )
+        }
+        <div className="process-wrapper">
+          <div className="process-container">
+            <div ref={progressRef} className="progress"></div>
+          </div>
+          <div ref={progressFontRef} className="font"></div>
+        </div>
+      </div>
     </section>
   )
 }
