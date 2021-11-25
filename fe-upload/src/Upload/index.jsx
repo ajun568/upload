@@ -19,9 +19,11 @@ const Upload = (props) => {
   } = props
 
   const [fileValue, setFileValue] = useState('') // 清空input值, 上传同名文件
+  const [isDrag, setIsDrag] = useState(false) // 是否为拖拽状态
   const fileRef = useRef(null)
   const progressRef = useRef(null)
   const progressFontRef = useRef(null)
+  const dragRef = useRef(null)
 
   // 禁用页面默认拖拽事件
   useEffect(() => {
@@ -38,6 +40,40 @@ const Upload = (props) => {
     }
   }, [])
 
+  // 拖拽上传
+  useEffect(() => {
+    dragRef?.current && dragRef.current.addEventListener('dragover', handleDragOver)
+    dragRef?.current && dragRef.current.addEventListener('drop', handleDrop)
+    dragRef?.current && dragRef.current.addEventListener('dragenter', handleDragEnter)
+    dragRef?.current && dragRef.current.addEventListener('dragleave', handleDragLeave)
+
+    return () => {
+      dragRef?.current && dragRef.current.removeEventListener('dragover', handleDragOver)
+      dragRef?.current && dragRef.current.removeEventListener('drop', handleDrop)
+      dragRef?.current && dragRef.current.removeEventListener('dragenter', handleDragEnter)
+      dragRef?.current && dragRef.current.removeEventListener('dragleave', handleDragLeave)
+    }
+  }, [])
+
+  // 拖拽相关事件
+  const handleDragOver = e => {
+    stopEvent(e)
+  }
+  const handleDrop = e => {
+    stopEvent(e)
+    const files = [...e.dataTransfer.files]
+    upload(files, 'drag')
+    setIsDrag(false)
+  }
+  const handleDragEnter = e => {
+    stopEvent(e)
+    setIsDrag(true)
+  }
+  const handleDragLeave = e => {
+    stopEvent(e)
+    setIsDrag(false)
+  }
+
   // 禁用默认行为、阻止事件冒泡
   const stopEvent = e => {
     e.preventDefault()
@@ -50,14 +86,18 @@ const Upload = (props) => {
   }
 
   // 上传逻辑
-  const upload = async (e) => {
+  const upload = async (e, type) => {
     setFileValue('')
-    let files = [...e.target.files]
+    let files = []
+    if (type === 'drag') {
+      files = e
+    } else {
+      files = [...e.target.files]
+    }
+
     progressRef.current.style.width = '0'
     progressRef.current.classList.remove('green')
     progressFontRef.current.innerHTML = '0%'
-
-    console.log(source, '+++++++==')
 
     if (beforeUpload) {
       let beforeUploadData = beforeUpload()
@@ -130,6 +170,17 @@ const Upload = (props) => {
             >
               上传
             </button>
+          )
+        }
+        {
+          type === 'drag' && (
+            <div
+              ref={dragRef}
+              className={`${isDrag ? 'dragging' : ''} drop-area`}
+              onClick={openFile}
+            >
+              这里是拖拽区域
+            </div>
           )
         }
         <div className="process-wrapper">

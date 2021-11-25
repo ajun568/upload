@@ -72,3 +72,18 @@
 .cancel:hover {
   color: orangered;
 }
+
+.drop-area {
+  margin-bottom: 10px;
+  width: 120px;
+  height: 60px;
+  border: 1px dashed #aaa;
+  text-align: center;
+  line-height: 60px;
+  color: orangered;
+  font-size: 12px;
+  font-weight: bold;
+}
+.drop-area.dragging {
+  border: 1px dashed orangered;
+}
