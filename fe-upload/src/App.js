@@ -308,6 +308,7 @@ const App = () => {
 
       <Upload
         action="http://localhost:3000/api/uploads/multiple"
+        multiple
       />
     </div>
   );

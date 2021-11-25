@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import './_upload.css'
 import message from './../Message'
 
+let source = axios.CancelToken.source() 
 const Upload = (props) => {
   const {
     type, // 上传样式 primary: 按钮形式, drag: 拖拽区域
@@ -56,6 +57,8 @@ const Upload = (props) => {
     progressRef.current.classList.remove('green')
     progressFontRef.current.innerHTML = '0%'
 
+    console.log(source, '+++++++==')
+
     if (beforeUpload) {
       let beforeUploadData = beforeUpload()
       if (beforeUploadData === false) return
@@ -82,6 +85,7 @@ const Upload = (props) => {
           }
         }
       },
+      cancelToken: source.token,
     }
 
     const data = await axios.post(action, formData, config)
@@ -97,6 +101,12 @@ const Upload = (props) => {
       return
     }
     message.success('上传成功')
+  }
+
+  // 取消上传
+  const cancelUpload = () => {
+    source.cancel()
+    source = axios.CancelToken.source() 
   }
 
   return (
@@ -128,6 +138,7 @@ const Upload = (props) => {
           </div>
           <div ref={progressFontRef} className="font"></div>
         </div>
+        <div className="cancel" onClick={cancelUpload}>取消</div>
       </div>
     </section>
   )

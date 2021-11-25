@@ -59,3 +59,16 @@
 .progress.green {
   background-color: green;
 }
+
+.cancel {
+  cursor: pointer;
+  margin-top: 5px;
+  width: 120px;
+  font-size: 14px;
+  text-align: center;
+  transition: all .3s ease;
+  color: #757575;
+}
+.cancel:hover {
+  color: orangered;
+}
