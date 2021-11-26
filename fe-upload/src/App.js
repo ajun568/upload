@@ -308,6 +308,7 @@ const App = () => {
         action="http://localhost:3000/api/uploads/shard"
         multiple
         shard
+        type="drag"
       />
     </div>
   );

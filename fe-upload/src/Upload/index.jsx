@@ -67,7 +67,7 @@ const Upload = (props) => {
     stopEvent(e)
     onDrop && onDrop()
     const files = [...e.dataTransfer.files]
-    upload(files, 'drag')
+    shard ? shardUpload(files, 'drag') : upload(files, 'drag')
     setIsDrag(false)
   }
   const handleDragEnter = e => {
@@ -93,7 +93,7 @@ const Upload = (props) => {
   // 上传逻辑 (普通上传)
   const upload = async (e, type) => {
     setFileValue('')
-    let files = []
+    let files
     if (type === 'drag') {
       files = e
     } else {
@@ -150,9 +150,14 @@ const Upload = (props) => {
   }
 
   // 上传逻辑 (分片上传)
-  const shardUpload = async (e) => {
+  const shardUpload = async (e, type) => {
     setFileValue('')
-    const files = e.target.files[0]
+    let files
+    if (type === 'drag') {
+      files = e[0]
+    } else {
+      files = e.target.files[0]
+    }
     const buffer = await fileParse(files)
     const spark = new SparkMD5.ArrayBuffer()
     spark.append(buffer)
