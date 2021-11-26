@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from 'axios' // fetch 不支持监听上传进度, 选用axios
 import { useState, useEffect, useRef } from 'react'
 import './_upload.css'
 import message from './../Message'
@@ -236,6 +236,7 @@ const Upload = (props) => {
 
       if (hashList.data.data.find(item => +item.split('-')[0] === index)) {
         progressArr[index] = 1 / chunkCount
+        sendChunkCount += 1
         return
       }
 
