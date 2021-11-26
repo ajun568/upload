@@ -2,8 +2,11 @@ import axios from 'axios'
 import { useState, useEffect, useRef } from 'react'
 import './_upload.css'
 import message from './../Message'
+import SparkMD5 from 'spark-md5'
 
-let source = axios.CancelToken.source() 
+let source = axios.CancelToken.source()
+const chunkSize = 2 * 1024 * 1024
+
 const Upload = (props) => {
   const {
     type, // 上传样式 primary: 按钮形式, drag: 拖拽区域
@@ -16,6 +19,7 @@ const Upload = (props) => {
     name, // 发送到后台的文件参数名
     onDrop, // 当文件被拖入上传区域时执行的回调功能
     finishUpload, // 文件上传后, 返回接口数据
+    shard, // 大文件 分片上传 & 断点续传 (不支持批量上传)
   } = props
 
   const [fileValue, setFileValue] = useState('') // 清空input值, 上传同名文件
@@ -61,6 +65,7 @@ const Upload = (props) => {
   }
   const handleDrop = e => {
     stopEvent(e)
+    onDrop && onDrop()
     const files = [...e.dataTransfer.files]
     upload(files, 'drag')
     setIsDrag(false)
@@ -85,7 +90,7 @@ const Upload = (props) => {
     if (fileRef?.current) fileRef.current.click()
   }
 
-  // 上传逻辑
+  // 上传逻辑 (普通上传)
   const upload = async (e, type) => {
     setFileValue('')
     let files = []
@@ -107,6 +112,7 @@ const Upload = (props) => {
     const formData = new FormData()
     files.forEach(item => {
       formData.append('f1', item)
+      formData.append('name', name)
     })
 
     let config = {
@@ -143,6 +149,109 @@ const Upload = (props) => {
     message.success('上传成功')
   }
 
+  // 上传逻辑 (分片上传)
+  const shardUpload = async (e) => {
+    setFileValue('')
+    const files = e.target.files[0]
+    const buffer = await fileParse(files)
+    const spark = new SparkMD5.ArrayBuffer()
+    spark.append(buffer)
+    let hash = spark.end()
+
+    let chunks = []
+    let chunkCount = 0
+    let sendChunkCount = 0
+
+    progressRef.current.style.width = '0'
+    progressRef.current.classList.remove('green')
+    progressFontRef.current.innerHTML = '0%'
+    let progress = 0
+
+    if (beforeUpload) {
+      let beforeUploadData = beforeUpload()
+      if (beforeUploadData === false) return
+    }
+
+    if (files.size > chunkSize) {
+      let start = 0
+      let end = 0
+
+      while (true) {
+        end += chunkSize
+        const blob = files.slice(start, end)
+        start += chunkSize
+
+        if (!blob.size) break
+        chunks.push(blob)
+      }
+    } else {
+      chunks.push(files)
+    }
+
+    chunkCount = chunks.length
+    const progressArr = new Array(chunkCount).fill(0)
+
+    chunks.forEach(async (chunk, index) => {
+      const formData = new FormData()
+      formData.append('token', hash)
+      formData.append('f1', chunk)
+      formData.append('index', index)
+
+      let config = {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        onUploadProgress: e => {
+          const { loaded, total } = e
+          if (e.lengthComputable) {
+            progressArr[index] = loaded / (total * chunkCount)
+            progress = progressArr.reduce((pre, cur) => pre + cur)
+            let progressNum = (progress * 100).toFixed(0)
+            if (progressNum > 100) progressNum = 100
+            progressRef.current.style.width = `${120 * progress}px`
+            progressFontRef.current.innerHTML = `${progressNum}%`
+            if (progressNum > 90) {
+              progressRef.current.classList.add('green')
+            }
+          }
+        },
+        cancelToken: source.token,
+      }
+
+      const data = await axios.post(action, formData, config)
+      if (data.data.err_no !== 0) {
+        console.error('分片上传失败')
+        return
+      }
+
+      sendChunkCount += 1
+      if (sendChunkCount === chunkCount) {
+        const mergeFormData = new FormData()
+        mergeFormData.append('type', 'merge')
+        mergeFormData.append('token', hash)
+        mergeFormData.append('chunkCount', chunkCount)
+        mergeFormData.append('filename', files.name)
+
+        const data = await axios.post(action, mergeFormData, config)
+        if (data.data.err_no !== 0) {
+          message.error('分片上传失败')
+          return
+        }
+        message.success('分片上传成功')
+      }
+    })
+  }
+
+  const fileParse = (files) => {
+    return new Promise((resolve, reject) => {
+      let fileRead = new FileReader()
+      fileRead.readAsArrayBuffer(files)
+      fileRead.onload = e => {
+        resolve(e.target.result)
+      }
+    })
+  }
+
   // 取消上传
   const cancelUpload = () => {
     source.cancel()
@@ -158,8 +267,8 @@ const Upload = (props) => {
         type="file"
         name="file"
         accept={accept}
-        onChange={upload}
-        multiple={multiple}
+        onChange={shard ? shardUpload : upload}
+        multiple={shard ? null : multiple}
       />
       <div className="btn-container">
         {

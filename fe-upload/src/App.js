@@ -300,16 +300,14 @@ const App = () => {
   }
 
   return (
-    <div className="App" style={{marginTop: 20, marginLeft: 20}}>
-      {/* { renderFormData() }
-      <div ref={progressRef} className="progress"></div>
-      <button onClick={cancel}>取 消</button>
-      <div className={`${isDrag ? 'dragging' : ''} drop-area`} ref={dropRef}>这里是拖拽区域</div> */}
-
+    <div
+      className="App"
+      style={{marginTop: 20, marginLeft: 20}}
+    >
       <Upload
-        action="http://localhost:3000/api/uploads/multiple"
+        action="http://localhost:3000/api/uploads/shard"
         multiple
-        type="drag"
+        shard
       />
     </div>
   );
