@@ -309,6 +309,7 @@ const App = () => {
         multiple
         shard
         type="drag"
+        breakPointAction="http://localhost:3000/api/uploads/breakPointHashList"
       />
     </div>
   );

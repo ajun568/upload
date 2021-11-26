@@ -20,6 +20,7 @@ const Upload = (props) => {
     onDrop, // 当文件被拖入上传区域时执行的回调功能
     finishUpload, // 文件上传后, 返回接口数据
     shard, // 大文件 分片上传 & 断点续传 (不支持批量上传)
+    breakPointAction, // 断点续传 ~ 获取已上传 hash-list
   } = props
 
   const [fileValue, setFileValue] = useState('') // 清空input值, 上传同名文件
@@ -93,7 +94,7 @@ const Upload = (props) => {
   // 上传逻辑 (普通上传)
   const upload = async (e, type) => {
     setFileValue('')
-    let files
+    let files = []
     if (type === 'drag') {
       files = e
     } else {
@@ -152,12 +153,14 @@ const Upload = (props) => {
   // 上传逻辑 (分片上传)
   const shardUpload = async (e, type) => {
     setFileValue('')
+
     let files
     if (type === 'drag') {
       files = e[0]
     } else {
       files = e.target.files[0]
     }
+
     const buffer = await fileParse(files)
     const spark = new SparkMD5.ArrayBuffer()
     spark.append(buffer)
@@ -175,6 +178,14 @@ const Upload = (props) => {
     if (beforeUpload) {
       let beforeUploadData = beforeUpload()
       if (beforeUploadData === false) return
+    }
+
+    const hashList = await axios.get(breakPointAction, {
+      params: { hash }
+    })
+    if (hashList.data.err_no !== 0) {
+      console.error('获取已上传列表失败')
+      return
     }
 
     if (files.size > chunkSize) {
@@ -221,6 +232,11 @@ const Upload = (props) => {
           }
         },
         cancelToken: source.token,
+      }
+
+      if (hashList.data.data.find(item => +item.split('-')[0] === index)) {
+        progressArr[index] = 1 / chunkCount
+        return
       }
 
       const data = await axios.post(action, formData, config)
