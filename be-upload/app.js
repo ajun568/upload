@@ -25,7 +25,7 @@ app.use(cors())
 app.use(koaBody({
   formidable: {
     uploadDir: path.resolve(__dirname, 'public/uploads'), // 文件上传目录
-    keepExtensions: true, // 保持文件后缀
+    // keepExtensions: boolean 保持文件后缀
     // maxFieldsSize: number 文件上传大小
     // onFileBegin: (name, file) => void 文件上传前
   },

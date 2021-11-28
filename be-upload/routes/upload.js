@@ -1,23 +1,26 @@
 const router = require('koa-router')()
 const fs = require('fs')
 const path = require('path')
+const { getFileName } = require('./../utils')
+const BASE_CONF = require('./../conf/base')
+let baseUrl = `${BASE_CONF.host}:${BASE_CONF.port}`
 
 router.prefix('/api')
 
 // 普通上传
 router.post('/upload', async (ctx, next) => {
-  let file = ctx.request.files?.f1
+  let file = ctx.request.files?.f1 // web端「input name」需定义为「f1」
   let result = []
 
   if (!file) {
     ctx.body = {
       err_no: -1,
-      msg: '上传失败'
+      msg: '未选择上传文件'
     }
     return
   }
 
-  if (!Array.isArray(file)) file = [file]
+  if (!Array.isArray(file)) file = [file] // 单文件处理
 
   file.forEach(item => {
     let path = item.path.replace(/\\/g, '/')
@@ -28,14 +31,14 @@ router.post('/upload', async (ctx, next) => {
       let extArr = fname.split('.')
       let ext = extArr[extArr.length - 1]
       nextPath = path + '.' + ext
-      fs.renameSync(path, nextPath)
-      result.push(`http://localhost:3000/file/${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`)
+      fs.renameSync(path, nextPath) // 重命名, 追加扩展名, 可直接在「koaBody」中配置
+      result.push(`${baseUrl}/file/${getFileName(nextPath)}`)
     }
   })
 
   ctx.body = {
     err_no: 0,
-    fileUrl: result
+    fileList: result,
   }
 })
 
