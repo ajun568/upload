@@ -2,36 +2,10 @@ const router = require('koa-router')()
 const fs = require('fs')
 const path = require('path')
 
-router.prefix('/api/uploads')
+router.prefix('/api')
 
-router.post('/single', async (ctx, next) => {
-  let file = ctx.request.files?.f1
-  if (!file) {
-    ctx.body = {
-      err_no: -1,
-      msg: '上传失败'
-    }
-    return
-  }
-
-  let path = file.path.replace(/\\/g, '/')
-  let fname = file.name
-  let nextPath = ''
-
-  if (file.size > 0 && path) {
-    let extArr = fname.split('.')
-    let ext = extArr[extArr.length - 1]
-    nextPath = path + '.' + ext
-    fs.renameSync(path, nextPath)
-  }
-
-  ctx.body = {
-    err_no: 0,
-    fileUrl: `http://localhost:3000/file/${nextPath.slice(nextPath.lastIndexOf('/') + 1)}`
-  }
-})
-
-router.post('/multiple', async (ctx, next) => {
+// 普通上传
+router.post('/upload', async (ctx, next) => {
   let file = ctx.request.files?.f1
   let result = []
 

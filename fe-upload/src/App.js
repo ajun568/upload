@@ -8,11 +8,8 @@ const App = () => {
       style={{marginTop: 20, marginLeft: 20}}
     >
       <Upload
-        action="http://localhost:3000/api/uploads/breakPoint"
+        action="http://localhost:3000/api/upload"
         multiple
-        shard
-        type="drag"
-        breakPointAction="http://localhost:3000/api/uploads/breakPointHashList"
       />
     </div>
   );
