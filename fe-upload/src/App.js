@@ -10,7 +10,7 @@ const App = () => {
       <div className="box">
         <h3>普通上传</h3>
         <Upload
-          action="http://localhost:8888"
+          action="http://localhost:3000/my/upload"
         />
       </div>
       <div className="box">
