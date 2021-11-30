@@ -13,7 +13,6 @@ const Upload = (props) => {
     accept, // 接收上传的文件类型
     action, // 上传的地址
     beforeUpload, // 文件上传前
-    data, // 上传所需的额外参数
     disabled, // 是否禁用
     multiple, // 是否支持多文件上传
     name, // 发送到后台的文件参数名
@@ -58,6 +57,7 @@ const Upload = (props) => {
       dragRef?.current && dragRef.current.removeEventListener('dragenter', handleDragEnter)
       dragRef?.current && dragRef.current.removeEventListener('dragleave', handleDragLeave)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // 拖拽相关事件

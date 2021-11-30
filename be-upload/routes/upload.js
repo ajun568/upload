@@ -24,7 +24,7 @@ router.post('/shard-upload', async (ctx, next) => {
   const body = ctx.request.body
   let file = ctx.request.files?.f1
   let data = shardUpload(file, body)
-  ctx.body = data ? new SuccessModel(data)  : new ErrorModel('未选择上传文件') 
+  ctx.body = data ? new SuccessModel(data) : new ErrorModel('未选择上传文件') 
 })
 
 module.exports = router

@@ -17,7 +17,7 @@ onerror(app)
 
 // middlewares
 app.use(bodyparser({
-  enableTypes:['json', 'form', 'text']
+  enableTypes:['json', 'form', 'text'],
 }))
 app.use(json())
 app.use(cors())
@@ -34,6 +34,7 @@ app.use(koaBody({
 }))
 app.use(koaStatic(__dirname + 'public'))
 
+// 回显图片
 app.use(async (ctx, next) => {
   const url = ctx.url
   const fileUrl = url.split('/file/')
