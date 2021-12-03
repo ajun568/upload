@@ -101,7 +101,7 @@ const shardUpload = (file, body) => {
 
   return {
     message: `已成功上传第${fileIndex}片内容`,
-    data: result
+    data: []
   }
 }
 
