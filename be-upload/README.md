@@ -1,14 +1,14 @@
-# fe-upload
+# be-upload
 
 ## 启动
 
 ```
-yarn start
+yarn dev
 ```
 
 ## 端口
 
-8080
+3000
 
 ## 文章链接
 
